@@ -1,25 +1,25 @@
-import express, { Express } from 'express'
-import db from './config/db'
-import router from './router'
-import colors from 'colors'
+import express, { Express } from 'express';
+import db from './config/db';
+import productRoutes from './routes/productRoutes';
+import colors from 'colors';
 
 async function connectDB() {
   try {
-    await db.authenticate()
-    db.sync()
-    console.log(colors.magenta('Conexión exitosa a la DB'))
+    await db.authenticate();
+    db.sync();
+    console.log(colors.magenta('Conexión exitosa a la DB'));
   } catch (error) {
-    console.error(error)
-    console.log(colors.red('Hubo un error al conectar a la DB'))
+    console.error(error);
+    console.log(colors.red('Hubo un error al conectar a la DB'));
   }
 }
 
-connectDB()
+connectDB();
 
-const server: Express = express()
+const server: Express = express();
 
-server.use(express.json())
+server.use(express.json());
 
-server.use('/products', router)
+server.use('/products', productRoutes);
 
-export default server
+export default server;
