@@ -2,16 +2,12 @@ import { Request, Response } from 'express';
 import Product from '../models/Product.model';
 
 export const getProducts = async (req: Request, res: Response) => {
-  try {
-    const products = await Product.findAll({
-      order: [['price', 'DESC']],
-      limit: 3,
-      attributes: { exclude: ['createdAt', 'updatedAt'] },
-    });
-    res.json({ data: products });
-  } catch (err) {
-    console.error(err);
-  }
+  const products = await Product.findAll({
+    order: [['price', 'DESC']],
+    limit: 3,
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+  });
+  res.json({ data: products, message: 'Products retrieved successfully.' });
 };
 
 export const getProductById = async (req: Request, res: Response) => {
@@ -19,21 +15,21 @@ export const getProductById = async (req: Request, res: Response) => {
 
   const product = await Product.findByPk(id);
   if (!product) {
-    res.status(404).json({ message: 'Not found' });
+    res.status(404).json({
+      error: 'Product not found.',
+      message: `No product found with the ID: ${id}.`,
+    });
     return;
   }
 
-  res.json({ data: product });
+  res.json({ data: product, message: 'Product retrieved successfully.' });
 };
 
 export const createProduct = async (req: Request, res: Response) => {
-  try {
-    const product = await Product.create(req.body);
-
-    res.status(201).json({ data: product });
-  } catch (err) {
-    console.error(err);
-  }
+  const product = await Product.create(req.body);
+  res
+    .status(201)
+    .json({ data: product, message: 'Product created successfully.' });
 };
 
 export const updateProduct = async (req: Request, res: Response) => {
@@ -41,13 +37,15 @@ export const updateProduct = async (req: Request, res: Response) => {
   const product = await Product.findByPk(id);
 
   if (!product) {
-    res.status(404).json({ message: 'Not found' });
+    res.status(404).json({
+      error: 'Product not found.',
+      message: 'No product found with the specified ID for update.',
+    });
     return;
   }
 
   const updatedProduct = await (await product.update(req.body)).save();
-
-  res.json({ data: updatedProduct });
+  res.json({ data: updatedProduct, message: 'Product updated successfully.' });
 };
 
 export const updateAvailability = async (req: Request, res: Response) => {
@@ -55,7 +53,10 @@ export const updateAvailability = async (req: Request, res: Response) => {
   const product = await Product.findByPk(id);
 
   if (!product) {
-    res.status(404).json({ message: 'Not found' });
+    res.status(404).json({
+      error: 'Product not found.',
+      message: 'No product found with the specified ID to update availability.',
+    });
     return;
   }
 
@@ -68,8 +69,10 @@ export const updateAvailability = async (req: Request, res: Response) => {
   }
 
   await product.save();
-
-  res.json({ data: product });
+  res.json({
+    data: product,
+    message: 'Product availability updated successfully.',
+  });
 };
 
 export const deleteProduct = async (req: Request, res: Response) => {
@@ -77,10 +80,13 @@ export const deleteProduct = async (req: Request, res: Response) => {
   const product = await Product.findByPk(id);
 
   if (!product) {
-    res.status(404).json({ message: 'Not found' });
+    res.status(404).json({
+      error: 'Product not found.',
+      message: 'No product found with the specified ID to delete.',
+    });
     return;
   }
 
-  product.destroy();
-  res.status(200).json({ message: 'Product removed' });
+  await product.destroy();
+  res.status(200).json({ message: 'Product removed successfully.' });
 };
