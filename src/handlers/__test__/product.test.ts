@@ -37,7 +37,9 @@ describe('POST /api/productos', () => {
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('data');
-
+    expect(response.body.data).toHaveProperty('id');
+    expect(response.body.data.name).toBe('Mouse Testing');
+    expect(response.body.data.price).toBe(500);
     expect(response.status).not.toBe(400);
     expect(response.body).not.toHaveProperty('errors');
   });
@@ -85,6 +87,8 @@ describe('GET /api/products/:id', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('data');
+    expect(response.body.data).toHaveProperty('id');
+    expect(response.body.data.id).toBe(1);
   });
 });
 
@@ -140,6 +144,8 @@ describe('PUT /api/products/:id', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('data');
+    expect(response.body.data).toHaveProperty('id');
+    expect(response.body.data.id).toBe(1);
     expect(response.body.message).toBe('Product updated successfully.');
     expect(response.body).not.toHaveProperty('error');
   });
@@ -156,10 +162,29 @@ describe('PATCH /api/products/:id', () => {
   });
 
   it('should update the product availability', async () => {
+    const response = await request(server)
+      .patch('/api/products/1')
+      .send({ isAvailable: false });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('data');
+    expect(response.body.data).toHaveProperty('isAvailable');
+    expect(response.body.data.isAvailable).toBe(false);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe(
+      'Product availability updated successfully.'
+    );
+  });
+
+  it('should toggle the product availability when isAvailable is not provided', async () => {
+    const responseBefore = await request(server).get('/api/products/1');
+    const initialAvailability = responseBefore.body.data.isAvailable;
+
     const response = await request(server).patch('/api/products/1');
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('data');
+    expect(response.body.data.isAvailable).toBe(!initialAvailability);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
       'Product availability updated successfully.'
