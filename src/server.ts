@@ -1,16 +1,15 @@
 import express, { Express } from 'express';
 import db from './config/db';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec, { swaggerUIOptions } from './config/swagger';
 import productRoutes from './routes/productRoutes';
-import colors from 'colors';
 
 export async function connectDB() {
   try {
     await db.authenticate();
     db.sync();
-    // console.log(colors.magenta('Conexión exitosa a la DB'));
   } catch (error) {
-    // console.error(error);
-    console.log(colors.red('Hubo un error al conectar a la DB'));
+    console.error('Hubo un error al conectar a la DB');
   }
 }
 
@@ -22,8 +21,10 @@ server.use(express.json());
 
 server.use('/api/products', productRoutes);
 
-server.get('/api/', (req, res) => {
-  res.json({ message: 'Desde API' });
-});
+server.use(
+  '/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, swaggerUIOptions)
+);
 
 export default server;
