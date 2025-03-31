@@ -1,5 +1,6 @@
 import express, { Express } from 'express';
 import cors, { CorsOptions } from 'cors';
+import morgan from 'morgan';
 import db from './config/db';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec, { swaggerUIOptions } from './config/swagger';
@@ -31,6 +32,8 @@ const corsOptions: CorsOptions = {
 server.use(cors(corsOptions));
 
 server.use(express.json());
+
+server.use(morgan('dev'));
 
 server.use('/api/products', productRoutes);
 
