@@ -1,4 +1,5 @@
 import express, { Express } from 'express';
+import cors, { CorsOptions } from 'cors';
 import db from './config/db';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec, { swaggerUIOptions } from './config/swagger';
@@ -14,13 +15,26 @@ export async function connectDB() {
 }
 
 connectDB();
-
+// Instance of express
 const server: Express = express();
+
+// Allow connections
+const corsOptions: CorsOptions = {
+  origin: function (origin, callback) {
+    if (origin === process.env.FRONTEND_URL) {
+      callback(null, true);
+    } else {
+      callback(new Error('Error de CORS'));
+    }
+  },
+};
+server.use(cors(corsOptions));
 
 server.use(express.json());
 
 server.use('/api/products', productRoutes);
 
+// Documentation
 server.use(
   '/docs',
   swaggerUi.serve,
